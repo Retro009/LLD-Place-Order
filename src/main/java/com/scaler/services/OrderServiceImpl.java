@@ -28,7 +28,7 @@ public class OrderServiceImpl implements OrderService{
         for(Long i:orderedItems.keySet()){
             if(menuItemRepository.findById(i).isEmpty())
                 throw new InvalidMenuItem("Menu Item Not Found");
-            menuItem.put(menuItemRepository.findById(i).get(),orderedItems.get(i));
+            menuItem.put(menuItemRepository.findById(i).get(),menuItem.getOrDefault(menuItemRepository.findById(i).get(),0)+orderedItems.get(i));
         }
         Order order = new Order();
         CustomerSession customerSession;
