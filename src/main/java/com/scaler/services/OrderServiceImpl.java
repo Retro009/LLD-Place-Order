@@ -37,12 +37,14 @@ public class OrderServiceImpl implements OrderService{
         if(activeCustomerSessionByUserId.isEmpty()){
             customerSession = new CustomerSession();
             customerSession.setCustomerSessionStatus(CustomerSessionStatus.ACTIVE);
+            customerSessionRepository.save(customerSession);
         }else
             customerSession = activeCustomerSessionByUserId.get();
+
 
         order.setCustomerSession(customerSession);
         order.setOrderedItems(menuItem);
 
-        return order;
+        return orderRepository.save(order);
     }
 }
