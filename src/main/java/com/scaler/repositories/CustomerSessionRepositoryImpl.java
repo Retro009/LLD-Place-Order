@@ -8,8 +8,11 @@ import java.util.Optional;
 
 public class CustomerSessionRepositoryImpl implements CustomerSessionRepository{
     List<CustomerSession> customerSessions = new ArrayList<>();
+    private static long idCounter = 0;
     @Override
     public CustomerSession save(CustomerSession customerSession) {
+        if(customerSession.getId()==0)
+            customerSession.setId(++idCounter);
         customerSessions.add(customerSession);
         return customerSession;
     }

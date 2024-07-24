@@ -8,8 +8,11 @@ import java.util.Optional;
 
 public class MenuItemRepositoryImpl implements MenuItemRepository{
     List<MenuItem> menuItems = new ArrayList<>();
+    private static long idCounter = 0;
     @Override
     public MenuItem add(MenuItem menuItem) {
+        if(menuItem.getId()==0)
+            menuItem.setId(++idCounter);
         menuItems.add(menuItem);
         return menuItem;
     }

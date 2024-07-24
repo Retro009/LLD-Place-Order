@@ -23,27 +23,27 @@ public class OrderServiceImpl implements OrderService{
     }
     @Override
     public Order placeOrder(long userId, Map<Long, Integer> orderedItems) throws UserNotFoundException, InvalidMenuItem {
-        User user = userRepository.findById(userId).orElseThrow(()-> new UserNotFoundException("User Not Found"));
-        Map<MenuItem,Integer> menuItem = new HashMap<>();
-        for(Long i:orderedItems.keySet()){
-            if(menuItemRepository.findById(i).isEmpty())
-                throw new InvalidMenuItem("Menu Item Not Found");
-            menuItem.put(menuItemRepository.findById(i).get(),menuItem.getOrDefault(menuItemRepository.findById(i).get(),0)+orderedItems.get(i));
-        }
-        Order order = new Order();
+        Optional<CustomerSession> optionalCustomerSession = customerSessionRepository.findActiveCustomerSessionByUserId(userId);
         CustomerSession customerSession;
-        Optional<CustomerSession> activeCustomerSessionByUserId = customerSessionRepository.findActiveCustomerSessionByUserId(userId);
-
-        if(activeCustomerSessionByUserId.isEmpty()){
+        if(optionalCustomerSession.isEmpty()){
             customerSession = new CustomerSession();
+            User user = userRepository.findById(userId).orElseThrow(()-> new UserNotFoundException("User Not Found"));
+            customerSession.setUser(user);
             customerSession.setCustomerSessionStatus(CustomerSessionStatus.ACTIVE);
             customerSessionRepository.save(customerSession);
         }else
-            customerSession = activeCustomerSessionByUserId.get();
+            customerSession = optionalCustomerSession.get();
+        Map<MenuItem,Integer> orderedMenuItem = new HashMap<>();
+        for(Map.Entry<Long, Integer> entry: orderedItems.entrySet()){
+            Long itemId = entry.getKey();
+            Integer quantity = entry.getValue();
 
-
+            MenuItem menuItem = menuItemRepository.findById(itemId).orElseThrow(()-> new InvalidMenuItem("Invalid Menu Item"));
+            orderedMenuItem.put(menuItem,quantity);
+        }
+        Order order = new Order();
+        order.setOrderedItems(orderedMenuItem);
         order.setCustomerSession(customerSession);
-        order.setOrderedItems(menuItem);
 
         return orderRepository.save(order);
     }
